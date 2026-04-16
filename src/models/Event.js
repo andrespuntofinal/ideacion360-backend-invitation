@@ -33,7 +33,7 @@ const CarouselSchema = new mongoose.Schema({
   carouselMsg: String,
   images: [String],
   autoPlayInterval: Number,
-  backgroundColor: String,
+  backgroundStyle: String,
   titleColor: String,
   titleFont: String,
   cardStyle: String,
@@ -57,7 +57,7 @@ const ChildRestrictionSchema = new mongoose.Schema({
 }, { _id: false });
 
 const CountdownSchema = new mongoose.Schema({
-  backgroundColor: String,
+  backgroundStyle: String,
   titleTextFont: String,
   titleTextColor: String,
   titleTextMsg: String,
@@ -80,7 +80,6 @@ const DressCodeSchema = new mongoose.Schema({
   dressCodeIconWomen: String,
   dressCodeIconMen: String,
   iconbackgroundColor: String,
-  backgroundColor: String,
   cardStyle: String,
   circleStyle: String,
   titleWomen: String,
@@ -150,7 +149,6 @@ const MessageSchema = new mongoose.Schema({
   brideParents: String,
   font: String,
   colorText1: String,
-  colorText2: String,
   colorParents: String,
   textSize: String,
 }, { _id: false });

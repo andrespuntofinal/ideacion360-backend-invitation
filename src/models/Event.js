@@ -7,16 +7,13 @@ const BannerSchema = new mongoose.Schema({
   videoDesktop: String,
   videoResponsive: String,
   titleFont: String,
-  titleSize: String,
   textColor: String,
   subtitleFont: String,
-  subtitleSize: String,
   subtextMsg: String,
 }, { _id: false });
 
 const CalendarSchema = new mongoose.Schema({
   dateImg: String,
-  backgroundStyle: String,
   titleTextColor: String,
   titleTextFont: String,
   titleMsgText: String,
@@ -33,14 +30,8 @@ const CarouselSchema = new mongoose.Schema({
   carouselMsg: String,
   images: [String],
   autoPlayInterval: Number,
-  backgroundStyle: String,
   titleColor: String,
   titleFont: String,
-  cardStyle: String,
-  durationTransition: Number,
-  buttonPrevStyle: String,
-  buttonNextStyle: String,
-  backgroundImgZoomStyle: String,
   buttonCloseColor: String,
 }, { _id: false });
 
@@ -49,15 +40,18 @@ const ChildRestrictionSchema = new mongoose.Schema({
   childrestrictionMessage: String,
   titleColor: String,
   titleFont: String,
-  cardStyle: String,
-  circleStyle: String,
   iconColor: String,
   textColor: String,
   textFont: String,
+  backgroundColorFrom: String,
+  backgroundColorVia: String,
+  backgroundColorTo: String,
+  boderColor: String,
+  backgroundColorIconMoments: String,
+  borderColorIconMoments: String,
 }, { _id: false });
 
 const CountdownSchema = new mongoose.Schema({
-  backgroundStyle: String,
   titleTextFont: String,
   titleTextColor: String,
   titleTextMsg: String,
@@ -69,6 +63,10 @@ const CountdownSchema = new mongoose.Schema({
   numberColorText1: String,
   numberColorText2: String,
   numberFontText: String,
+  backgroundColorFrom: String,
+  backgroundColorVia: String,
+  backgroundColorTo: String,
+  boderColor: String,
 }, { _id: false });
 
 const DressCodeSchema = new mongoose.Schema({
@@ -80,14 +78,18 @@ const DressCodeSchema = new mongoose.Schema({
   dressCodeIconWomen: String,
   dressCodeIconMen: String,
   iconbackgroundColor: String,
-  cardStyle: String,
-  circleStyle: String,
   titleWomen: String,
   titleMen: String,
   title2Color: String,
   title2Font: String,
   text2Color: String,
   text2Font: String,
+  backgroundColorFrom: String,
+  backgroundColorVia: String,
+  backgroundColorTo: String,
+  boderColor: String,
+  backgroundColorIconMoments: String,
+  borderColorIconMoments: String,
 }, { _id: false });
 
 const EnvelopeSchema = new mongoose.Schema({
@@ -112,22 +114,26 @@ const EnvelopeSchema = new mongoose.Schema({
   initialsCoupleTextColor: String,
   initialsCoupleText: String,
   cardMessageforguestsText: String,
+  backgroundImage: String,
 }, { _id: false });
 
 const EventDetailsSchema = new mongoose.Schema({
   detailsTitle: String,
   detailsColor: String,
   detailsFont: String,
-  cardStyle: String,
-  detailsIcons: String,
   detailIconColor: String,
   detailItemTitleColor: String,
   detailItemTitleFont: String,
   detailItemText1Color: String,
   detailItemText1Font: String,
   detailIcon2Color: String,
-  detailsMapsStyle: String,
   detailsMapsTitle: String,
+  backgroundColorFrom: String,
+  backgroundColorVia: String,
+  backgroundColorTo: String,
+  boderColor: String,
+  backgroundColorIconMoments: String,
+  borderColorIconMoments: String,
   ceremony: {
     title: String,
     place: String,
@@ -150,7 +156,8 @@ const MessageSchema = new mongoose.Schema({
   font: String,
   colorText1: String,
   colorParents: String,
-  textSize: String,
+  backgroundImage: String,
+  backgroundColor: String,
 }, { _id: false });
 
 const PresentsSchema = new mongoose.Schema({
@@ -158,11 +165,15 @@ const PresentsSchema = new mongoose.Schema({
   presentMessage: String,
   titleColor: String,
   titleFont: String,
-  cardStyle: String,
-  circleStyle: String,
   iconColor: String,
   textColor: String,
   textFont: String,
+  backgroundColorFrom: String,
+  backgroundColorVia: String,
+  backgroundColorTo: String,
+  boderColor: String,
+  backgroundColorIconMoments: String,
+  borderColorIconMoments: String,
 }, { _id: false });
 
 const ButtonStyleSchema = new mongoose.Schema({
@@ -183,7 +194,6 @@ const RSVPSchema = new mongoose.Schema({
   buttonText: String,
   successMessage: String,
   rejectedMessage: String,
-  backgroundColor: String,
   buttonColor: String,
   buttonTextColor: String,
   buttonTextFont: String,
@@ -215,8 +225,6 @@ const RSVPSchema = new mongoose.Schema({
 
 const TimelineSchema = new mongoose.Schema({
   font: String,
-  textColor: String,
-  backgroundColor: String,
   iconStep1: String,
   iconStep2: String,
   iconStep3: String,

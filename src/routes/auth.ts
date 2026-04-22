@@ -1,15 +1,16 @@
-const express = require('express');
-const router = express.Router();
+import { Router, Request, Response } from 'express';
+
+const router = Router();
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
+router.post('/login', (req: Request, res: Response): void => {
+  const { username, password } = req.body as { username: string; password: string };
 
   const adminUser = process.env.ADMIN_USER || 'admin';
   const adminPass = process.env.ADMIN_PASSWORD || '12345';
 
   if (username === adminUser && password === adminPass) {
-    return res.json({
+    res.json({
       success: true,
       message: 'Login exitoso',
       token: 'ideacion360-admin-token',
@@ -20,17 +21,18 @@ router.post('/login', (req, res) => {
         name: 'Administrador',
       },
     });
+    return;
   }
 
-  return res.status(401).json({
+  res.status(401).json({
     success: false,
     message: 'Credenciales inválidas',
   });
 });
 
 // POST /api/auth/logout
-router.post('/logout', (req, res) => {
+router.post('/logout', (_req: Request, res: Response): void => {
   res.json({ success: true, message: 'Sesión cerrada' });
 });
 
-module.exports = router;
+export default router;

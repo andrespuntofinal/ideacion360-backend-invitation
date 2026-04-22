@@ -1,18 +1,30 @@
-# Use Node.js LTS version
-FROM node:18-alpine
+# ── Build Stage ────────────────────────────────────────────────────────────────
+FROM node:18-alpine AS builder
 
-# Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
+# Install all dependencies (including devDeps needed for build)
 COPY package*.json ./
-RUN npm install --production
+RUN npm ci
 
-# Bundle app source
-COPY . .
+# Copy source and compile TypeScript → JavaScript
+COPY tsconfig.json ./
+COPY src/ ./src/
+RUN npm run build
 
-# Expose port (adjust if your app uses a different port)
+# ── Production Stage ───────────────────────────────────────────────────────────
+FROM node:18-alpine AS production
+
+WORKDIR /usr/src/app
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy compiled output from builder stage
+COPY --from=builder /usr/src/app/dist ./dist
+
 EXPOSE 5000
 
-# Start the application
-CMD [ "npm", "start" ]
+# Start the compiled server
+CMD ["node", "dist/server.js"]

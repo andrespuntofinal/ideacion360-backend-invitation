@@ -5,6 +5,7 @@ import multer from 'multer';
 import { UploadApiResponse } from 'cloudinary';
 import Event from '../models/Event';
 import cloudinary from '../config/cloudinary';
+import { sendRSVPEmail } from '../services/emailService';
 
 const router = Router();
 const storage = multer.memoryStorage();
@@ -246,6 +247,54 @@ router.delete('/:id/components/:type', async (req: Request, res: Response): Prom
     res.json({ success: true, message: `Componente ${type} eliminado` });
   } catch (error) {
     res.status(400).json({ success: false, message: (error as Error).message });
+  }
+});
+
+router.post('/:id/rsvp', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { message, attendance, guestName, companions } = req.body;
+
+    const event = await Event.findOne(buildQuery(id));
+    if (!event) {
+      res.status(404).json({ success: false, message: 'Evento no encontrado' });
+      return;
+    }
+
+    const recipientEmail = event.contact?.email;
+    if (!recipientEmail) {
+      res.status(400).json({ success: false, message: 'El evento no tiene un email de contacto configurado' });
+      return;
+    }
+
+    const coupleNames = event.wedding?.coupleNames || 'los novios';
+    
+    const date = new Date().toLocaleString('es-CO', {
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/Bogota'
+    }).replace(/de 202/, 'de 202'); // Simple formatting to match requested style like "Abril 06 de 2026 a las 5:30 PM"
+    
+    // Capitalize month
+    const formattedDate = date.charAt(0).toUpperCase() + date.slice(1).replace(', ', ' a las ');
+
+    await sendRSVPEmail({
+      guestName,
+      coupleNames,
+      message,
+      companions,
+      attendance,
+      date: formattedDate,
+      recipientEmail
+    });
+
+    res.json({ success: true, message: 'Confirmación y correo enviados correctamente' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
   }
 });
 

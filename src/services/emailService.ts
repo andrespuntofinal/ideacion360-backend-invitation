@@ -17,12 +17,12 @@ export const sendRSVPEmail = async (data: RSVPData) => {
   const senderEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #F7F9FA; padding: 40px 20px; color: #27272B;">
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #19284c; padding: 40px 20px; color: #27272B;">
       <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center;">
         <h1 style="color: #19284c; margin-bottom: 10px; font-size: 24px;">Confirmación de Asistencia boda ${data.coupleNames}</h1>
         <p style="color: #A5ADB8; font-size: 16px; margin-bottom: 30px;">Has recibido una nueva respuesta al evento</p>
         
-        <div style="text-align: left; background-color: #E8E2D9; padding: 25px; border-radius: 6px; margin-bottom: 30px;">
+        <div style="text-align: left; background-color: #19284c; padding: 25px; border-radius: 6px; margin-bottom: 30px;">
           <p style="margin: 0 0 15px 0;"><strong>Invitado:</strong> ${data.guestName}</p>
           <p style="margin: 0 0 15px 0;"><strong>Respuesta de asistencia:</strong> <span style="color: ${data.attendance === 'si' ? '#19284c' : '#D7B272'}; font-weight: bold;">${data.attendance === 'si' ? 'Sí asistirá' : 'No asistirá'}</span></p>
           <p style="margin: 0 0 15px 0;"><strong>Número de invitados:</strong> ${data.companions}</p>

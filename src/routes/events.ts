@@ -11,12 +11,16 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-/** Helper: build a MongoDB query that resolves either _id or eventId */
+/** Helper: build a MongoDB query that resolves either _id, eventId, or token */
 const buildQuery = (id: string) => {
   const isObjectId = mongoose.Types.ObjectId.isValid(id);
-  return isObjectId
-    ? { $or: [{ eventId: id }, { _id: id }] }
-    : { eventId: id };
+  if (isObjectId) {
+    return { $or: [{ eventId: id }, { _id: id }] };
+  }
+  if (id.length < 36) {
+    return { $or: [{ eventId: id }, { 'components.guestManagement.guests.token': id }] };
+  }
+  return { eventId: id };
 };
 
 // ─── GET /api/events ─────────────────────────────────────────────────────────
@@ -48,6 +52,34 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         pages: Math.ceil(total / limitNum),
       },
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+});
+
+// ─── GET /api/events/card/:token ───────────────────────────────────────────
+router.get('/card/:token', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
+    
+    // Find the event that has a guest with this token
+    const event = await Event.findOne({
+      'components.guestManagement.guests.token': token
+    });
+
+    if (!event) {
+      res.status(404).json({ success: false, message: 'Invitación no encontrada' });
+      return;
+    }
+
+    const guest = event.components?.guestManagement?.guests?.find((g: any) => g.token === token);
+    
+    if (!guest) {
+      res.status(404).json({ success: false, message: 'Invitado no encontrado' });
+      return;
+    }
+
+    res.json({ success: true, data: { event, guest } });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
@@ -262,9 +294,15 @@ router.post('/:id/rsvp', async (req: Request, res: Response): Promise<void> => {
     }
 
     if (event.components && event.components.guestManagement && event.components.guestManagement.guests) {
-      const guestIndex = event.components.guestManagement.guests.findIndex(
-        (g) => g.name === guestName
-      );
+      let guestIndex = -1;
+      
+      if (id.length < 36) {
+        guestIndex = event.components.guestManagement.guests.findIndex((g) => g.token === id);
+      }
+
+      if (guestIndex === -1) {
+        guestIndex = event.components.guestManagement.guests.findIndex((g) => g.name === guestName);
+      }
 
       const now = new Date();
 

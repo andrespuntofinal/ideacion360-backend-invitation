@@ -260,16 +260,20 @@ export interface IComponents {
   guestManagement?: IGuestManagement;
 }
 
+export interface IEventContact {
+  name?: string;
+  email?: string;
+  phone?: string;
+  identification?: string;
+  OTPcode?: string;
+  OTPexpiration?: Date;
+}
+
 export interface IEvent extends Document {
   eventId: string;
   type: 'web' | 'video' | 'card';
   status: 'draft' | 'active' | 'inactive';
-  contact?: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    identification?: string;
-  };
+  contact?: IEventContact;
   wedding?: {
     coupleNames?: string;
     weddingDate?: Date;
@@ -435,6 +439,8 @@ const EventSchema = new Schema<IEvent>({
     email: String,
     phone: String,
     identification: String,
+    OTPcode: String,
+    OTPexpiration: Date,
   },
   wedding: {
     coupleNames: String,

@@ -52,7 +52,7 @@ export const sendRSVPEmail = async (data: RSVPData) => {
 
   try {
     const response = await resend.emails.send({
-      from: `Invitaciones Boda <${senderEmail}>`,
+      from: `Ideacion360 <${senderEmail}>`,
       to: data.recipientEmail,
       subject: `Confirmación Asistencia Boda ${data.coupleNames}`,
       html,
@@ -60,6 +60,45 @@ export const sendRSVPEmail = async (data: RSVPData) => {
     return response;
   } catch (error) {
     console.error('Error sending email with Resend:', error);
+    throw error;
+  }
+};
+
+export const sendOTPEmail = async (recipientEmail: string, coupleNames: string, otpCode: string) => {
+  const senderEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #19284c; padding: 40px 20px; color: #27272B;">
+      <div style="background-color: #F7F9FA; border-radius: 8px; padding: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center;">
+        <h1 style="color: #19284c; margin-bottom: 10px; font-size: 24px;">Código de verificación gestión Boda ${coupleNames}</h1>
+        <p style="color: #A5ADB8; font-size: 16px; margin-bottom: 30px;">Has solicitado un código para ingresar a gestionar los invitados de tu boda.</p>
+        
+        <div style="text-align: center; background-color: #E8E2D9; padding: 25px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #D7B272;">
+          <p style="margin: 0 0 15px 0; color: #735309; font-size: 18px;">
+            <strong>Su código es:</strong>
+          </p>
+          <div style="font-size: 36px; font-weight: bold; letter-spacing: 5px; color: #19284c;">
+            ${otpCode}
+          </div>
+        </div>
+        
+        <div style="border-top: 1px solid #E8E2D9; padding-top: 20px; color: #A5ADB8; font-size: 12px;">
+          Este código expirará en 1 hora.
+        </div>
+      </div>
+    </div>
+  `;
+
+  try {
+    const response = await resend.emails.send({
+      from: `Ideacion360 <${senderEmail}>`,
+      to: recipientEmail,
+      subject: `Código de verificación gestión Boda ${coupleNames}`,
+      html,
+    });
+    return response;
+  } catch (error) {
+    console.error('Error sending OTP email with Resend:', error);
     throw error;
   }
 };

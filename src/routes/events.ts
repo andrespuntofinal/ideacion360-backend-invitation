@@ -35,7 +35,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     const limitNum = Number(limit);
 
     const events = await Event.find(filter)
-      .select('-components')
       .sort({ createdAt: -1 })
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum);

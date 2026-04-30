@@ -225,7 +225,7 @@ export interface ITimeline {
 
 export interface IGuestManagement {
   totalGuests?: number;
-  guests?: Array<{ name?: string; companions?: number; urlCard?: string }>;
+  guests?: Array<{ name?: string; companions?: number; urlCard?: string; confirmation?: string; message?: string; confirmationDate?: Date }>;
 }
 
 export interface IActiveComponents {
@@ -393,7 +393,7 @@ const TimelineSchema = new Schema<ITimeline>({
 
 const GuestManagementSchema = new Schema<IGuestManagement>({
   totalGuests: Number,
-  guests: [{ name: String, companions: Number, urlCard: String }],
+  guests: [{ name: String, companions: Number, urlCard: String, confirmation: String, message: String, confirmationDate: Date }],
 }, { _id: false });
 
 const ActiveComponentsSchema = new Schema<IActiveComponents>({

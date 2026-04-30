@@ -261,6 +261,30 @@ router.post('/:id/rsvp', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (event.components && event.components.guestManagement && event.components.guestManagement.guests) {
+      const guestIndex = event.components.guestManagement.guests.findIndex(
+        (g) => g.name === guestName
+      );
+
+      const now = new Date();
+
+      if (guestIndex !== -1) {
+        event.components.guestManagement.guests[guestIndex].confirmation = attendance;
+        event.components.guestManagement.guests[guestIndex].message = message;
+        event.components.guestManagement.guests[guestIndex].confirmationDate = now;
+      } else {
+        event.components.guestManagement.guests.push({
+          name: guestName,
+          companions: Number(companions) || 0,
+          confirmation: attendance,
+          message: message,
+          confirmationDate: now
+        });
+      }
+      event.markModified('components.guestManagement.guests');
+      await event.save();
+    }
+
     const recipientEmail = event.contact?.email;
     if (!recipientEmail) {
       res.status(400).json({ success: false, message: 'El evento no tiene un email de contacto configurado' });

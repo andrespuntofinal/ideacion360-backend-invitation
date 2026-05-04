@@ -16,7 +16,13 @@ const app: Application = express();
 // ─── Middlewares ─────────────────────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://ideacion360.com'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000', 
+    'https://ideacion360.com',
+    'https://ideacion360.web.app',
+    'https://ideacion360.firebaseapp.com'
+  ],
   credentials: true,
 }));
 app.use(morgan('dev'));
@@ -54,9 +60,12 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // ─── Start Server ────────────────────────────────────────────────────────────
-const PORT = Number(process.env.PORT) || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+// Cloud Run inyecta PORT como variable de entorno. 
+// Usamos '0.0.0.0' para aceptar conexiones externas dentro del contenedor.
+const PORT = process.env.PORT || 5000;
+
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Servidor de Antigravity listo en el puerto: ${PORT}`);
   console.log(`📡 Ambiente: ${process.env.NODE_ENV || 'development'}`);
 });
 

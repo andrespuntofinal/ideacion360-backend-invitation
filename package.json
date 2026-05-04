@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
+    "deploy": "gcloud run deploy wedding-api --source . --region us-central1 --allow-unauthenticated",
     "dev": "ts-node src/server.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",

@@ -1,7 +1,11 @@
 import { Resend } from 'resend';
 
 // Configure Resend with the API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiKey = process.env.RESEND_API_KEY;
+if (!apiKey) {
+  console.warn('⚠️ Advertencia: RESEND_API_KEY no está definida. El servicio de correo no funcionará.');
+}
+const resend = new Resend(apiKey || 'missing_key');
 
 interface RSVPData {
   guestName: string;

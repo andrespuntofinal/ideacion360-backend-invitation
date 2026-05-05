@@ -2,32 +2,75 @@ import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+import { auth } from '../config/firebase';
+import User from '../models/User';
+
 // POST /api/auth/login
-router.post('/login', (req: Request, res: Response): void => {
-  const { username, password } = req.body as { username: string; password: string };
+router.post('/login', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ success: false, message: 'No token provided' });
+      return;
+    }
 
-  const adminUser = process.env.ADMIN_USER || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || '12345';
+    const idToken = authHeader.split('Bearer ')[1];
+    
+    // Verify Firebase token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const { uid, email, name } = decodedToken;
 
-  if (username === adminUser && password === adminPass) {
-    res.json({
+    if (!email) {
+      res.status(400).json({ success: false, message: 'Email no disponible en el token' });
+      return;
+    }
+
+    // Find or create user in MongoDB
+    let user = await User.findOne({ uid });
+
+    if (!user) {
+      user = new User({
+        uid,
+        email,
+        role: 'user-boda',
+        nombre: name || email.split('@')[0],
+        estado: 'activo'
+      });
+      await user.save();
+      
+      // Set custom claim for new user
+      await auth.setCustomUserClaims(uid, { role: 'user-boda' });
+    }
+
+    if (user.estado === 'inactivo') {
+      res.status(403).json({ success: false, message: 'Su cuenta se encuentra inactiva. Por favor contacte al soporte.' });
+      return;
+    }
+
+    // Ensure custom claim matches db (optional sync step)
+    if (decodedToken.role !== user.role) {
+      await auth.setCustomUserClaims(uid, { role: user.role });
+    }
+
+    res.status(200).json({
       success: true,
       message: 'Login exitoso',
-      token: 'ideacion360-admin-token',
+      token: idToken,
       user: {
-        id: 'admin-001',
-        username: adminUser,
-        role: 'admin',
-        name: 'Administrador',
-      },
+        id: user.uid,
+        uid: user.uid,
+        email: user.email,
+        name: user.nombre,
+        username: user.email,
+        role: user.role,
+        estado: user.estado
+      }
     });
-    return;
-  }
 
-  res.status(401).json({
-    success: false,
-    message: 'Credenciales inválidas',
-  });
+  } catch (error) {
+    console.error('Error in /login endpoint:', error);
+    res.status(401).json({ success: false, message: 'Token inválido o error de autenticación' });
+  }
 });
 
 // POST /api/auth/logout

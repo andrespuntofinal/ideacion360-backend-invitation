@@ -272,7 +272,7 @@ export interface IEventContact {
 export interface IEvent extends Document {
   eventId: string;
   type: 'web' | 'video' | 'card';
-  status: 'draft' | 'active' | 'inactive';
+  status: 'draft' | 'active' | 'inactive' | 'canceled' | 'completed' | 'concluded';
   contact?: IEventContact;
   wedding?: {
     coupleNames?: string;
@@ -431,7 +431,7 @@ const EventSchema = new Schema<IEvent>({
   },
   status: {
     type: String,
-    enum: ['draft', 'active', 'inactive'],
+    enum: ['draft', 'active', 'inactive', 'canceled', 'completed', 'concluded'],
     default: 'draft',
   },
   contact: {

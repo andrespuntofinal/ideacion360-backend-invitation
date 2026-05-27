@@ -213,6 +213,50 @@ router.put('/:id/components/:type', async (req: Request, res: Response): Promise
   }
 });
 
+const extractCloudinaryFolder = (url: string | undefined): string | null => {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
+    return null;
+  }
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return null;
+  
+  let pathStr = url.substring(uploadIndex + 8);
+  const versionMatch = pathStr.match(/^v\d+\//);
+  if (versionMatch) {
+    pathStr = pathStr.substring(versionMatch[0].length);
+  }
+  
+  const lastSlashIndex = pathStr.lastIndexOf('/');
+  if (lastSlashIndex === -1) return null;
+  
+  try {
+    return decodeURIComponent(pathStr.substring(0, lastSlashIndex));
+  } catch (e) {
+    return pathStr.substring(0, lastSlashIndex);
+  }
+};
+
+const findExistingCloudinaryFolder = (event: any): string | null => {
+  let folder = extractCloudinaryFolder(event.components?.envelope?.cardCouplePhoto);
+  if (folder) return folder;
+
+  folder = extractCloudinaryFolder(event.components?.calendar?.dateImg);
+  if (folder) return folder;
+
+  folder = extractCloudinaryFolder(event.components?.banner?.musicUrl);
+  if (folder) return folder;
+
+  const carouselImages = event.components?.carousel?.images;
+  if (Array.isArray(carouselImages)) {
+    for (const img of carouselImages) {
+      folder = extractCloudinaryFolder(img);
+      if (folder) return folder;
+    }
+  }
+
+  return null;
+};
+
 // ─── POST /api/events/:id/components/upload ──────────────────────────────────
 router.post('/:id/components/upload', upload.any(), async (req: Request, res: Response): Promise<void> => {
   try {
@@ -228,9 +272,12 @@ router.post('/:id/components/upload', upload.any(), async (req: Request, res: Re
       return;
     }
 
-    let coupleNames = event.wedding?.coupleNames || 'event';
-    coupleNames = coupleNames.replace(/[^a-zA-Z0-9_]/g, '_');
-    const folderName = `ideación360-wedding-invitation/${coupleNames}_${event.eventId}`;
+    let folderName = findExistingCloudinaryFolder(event);
+    if (!folderName) {
+      let coupleNames = event.wedding?.coupleNames || 'event';
+      coupleNames = coupleNames.replace(/[^a-zA-Z0-9_]/g, '_');
+      folderName = `ideación360-wedding-invitation/${coupleNames}_${event.eventId}`;
+    }
 
     const uploadPromises = files.map((file) => {
       return new Promise<{ fieldname: string; url: string }>((resolve, reject) => {
@@ -253,6 +300,16 @@ router.post('/:id/components/upload', upload.any(), async (req: Request, res: Re
 
     res.json({ success: true, data: urlsMap });
   } catch (error) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      fs.appendFileSync(
+        path.join(__dirname, '../../backend_errors.log'),
+        `[${new Date().toISOString()}] Error uploading files for event ${req.params.id}:\n${(error as Error).stack || error}\n\n`
+      );
+    } catch (fsErr) {
+      console.error('Failed to write log:', fsErr);
+    }
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 });

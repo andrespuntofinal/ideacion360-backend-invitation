@@ -130,6 +130,7 @@ export interface IEnvelope {
   initialsCoupleText?: string;
   cardMessageforguestsText?: string;
   backgroundImage?: string;
+  messageOnEnvelope?: boolean;
 }
 
 export interface IEventDetails {
@@ -347,6 +348,7 @@ const EnvelopeSchema = new Schema<IEnvelope>({
   cardBackgroundColor: String, accentColor: String, textColor: String, textDarkColor: String,
   photoBackgroundColor: String, titleFont: String, initialsCoupleTextColor: String,
   initialsCoupleText: String, cardMessageforguestsText: String, backgroundImage: String,
+  messageOnEnvelope: { type: Boolean, default: false },
 }, { _id: false });
 
 const EventDetailsSchema = new Schema<IEventDetails>({

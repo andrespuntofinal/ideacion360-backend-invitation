@@ -24,12 +24,15 @@ const getLogoAttachment = () => {
   try {
     const logoPath = path.resolve(__dirname, '../../../frontend/src/assets/logositio.jpg');
     if (fs.existsSync(logoPath)) {
+      console.log('✅ Logotipo de correo encontrado en:', logoPath);
       return {
-        content: fs.readFileSync(logoPath),
+        content: fs.readFileSync(logoPath).toString('base64'),
         filename: 'logositio.jpg',
         contentId: 'logositio',
         contentType: 'image/jpeg'
       };
+    } else {
+      console.warn('⚠️ Logotipo de correo NO encontrado en:', logoPath);
     }
   } catch (error) {
     console.error('Error loading email logo attachment:', error);
@@ -55,16 +58,14 @@ export const sendRSVPEmail = async (data: RSVPData) => {
             <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
               <tr>
                 <td style="text-align: center;">
-                  ${logo 
-                    ? `<img src="cid:logositio" alt="Ideación 360" style="display: block; margin: 0 auto; max-height: 55px; width: auto; border: none; outline: none; text-decoration: none;" height="55" />`
-                    : `<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">Ideación<span style="color: #818cf8;">360</span></span>`
-                  }
+                  ${logo
+      ? `<img src="cid:logositio" alt="Ideación 360" style="display: block; margin: 0 auto; max-height: 55px; width: auto; border: none; outline: none; text-decoration: none;" height="55" />`
+      : `<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">Ideación<span style="color: #818cf8;">360</span></span>`
+    }
                 </td>
               </tr>
             </table>
-            <div style="font-size: 16px; font-family: 'Playfair Display', Georgia, serif; color: #ffffff; letter-spacing: 0.5px; margin-top: 14px; font-weight: 700; text-transform: none;">
-              Ideación <span style="color: #4b7bec; font-family: 'Outfit', sans-serif; font-weight: 800;">3</span><span style="color: #a55eea; font-family: 'Outfit', sans-serif; font-weight: 800;">6</span><span style="color: #ffb142; font-family: 'Outfit', sans-serif; font-weight: 800;">0</span>
-            </div>
+            
           </td>
         </tr>
 
@@ -102,10 +103,10 @@ export const sendRSVPEmail = async (data: RSVPData) => {
                         Asistencia
                       </td>
                       <td width="65%" style="padding-bottom: 4px; vertical-align: middle;">
-                        ${data.attendance === 'si' 
-                          ? `<span style="background-color: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.25); font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 8px; display: inline-block;">Sí asistirá</span>`
-                          : `<span style="background-color: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.25); font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 8px; display: inline-block;">No asistirá</span>`
-                        }
+                        ${data.attendance === 'si'
+      ? `<span style="background-color: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.25); font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 8px; display: inline-block;">Sí asistirá</span>`
+      : `<span style="background-color: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.25); font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 8px; display: inline-block;">No asistirá</span>`
+    }
                       </td>
                     </tr>
                   </table>
@@ -193,16 +194,14 @@ export const sendOTPEmail = async (recipientEmail: string, coupleNames: string, 
             <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
               <tr>
                 <td style="text-align: center;">
-                  ${logo 
-                    ? `<img src="cid:logositio" alt="Ideación 360" style="display: block; margin: 0 auto; max-height: 55px; width: auto; border: none; outline: none; text-decoration: none;" height="55" />`
-                    : `<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">Ideación<span style="color: #818cf8;">360</span></span>`
-                  }
+                  ${logo
+      ? `<img src="cid:logositio" alt="Ideación 360" style="display: block; margin: 0 auto; max-height: 55px; width: auto; border: none; outline: none; text-decoration: none;" height="55" />`
+      : `<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">Ideación<span style="color: #818cf8;">360</span></span>`
+    }
                 </td>
               </tr>
             </table>
-            <div style="font-size: 16px; font-family: 'Playfair Display', Georgia, serif; color: #ffffff; letter-spacing: 0.5px; margin-top: 14px; font-weight: 700; text-transform: none;">
-              Ideación <span style="color: #4b7bec; font-family: 'Outfit', sans-serif; font-weight: 800;">3</span><span style="color: #a55eea; font-family: 'Outfit', sans-serif; font-weight: 800;">6</span><span style="color: #ffb142; font-family: 'Outfit', sans-serif; font-weight: 800;">0</span>
-            </div>
+            
           </td>
         </tr>
 

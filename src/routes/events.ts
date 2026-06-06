@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import mongoose from 'mongoose';
 import multer from 'multer';
 import { UploadApiResponse } from 'cloudinary';
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
 import Event from '../models/Event';
 import cloudinary from '../config/cloudinary';
 import { sendRSVPEmail } from '../services/emailService';
@@ -114,21 +117,79 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// Helper to get VITE_FRONT_URL dynamically from frontend environment files
+const getFrontUrl = (): string => {
+  try {
+    const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+    const envPath = path.resolve(__dirname, '../../../frontend', envFile);
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath));
+      if (envConfig.VITE_FRONT_URL) {
+        return envConfig.VITE_FRONT_URL.replace(/\/$/, '');
+      }
+    }
+  } catch (err) {
+    console.error('Error reading frontend env file:', err);
+  }
+  return process.env.NODE_ENV === 'production'
+    ? 'https://ideacion360.com'
+    : 'http://localhost:5173';
+};
+
 // ─── PUT /api/events/:id ─────────────────────────────────────────────────────
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
+    const query = buildQuery(req.params.id);
+    const currentEvent = await Event.findOne(query);
+    if (!currentEvent) {
+      res.status(404).json({ success: false, message: 'Evento no encontrado' });
+      return;
+    }
+
+    const updateData = { ...req.body };
+
+    // If status is changed to completed or concluded, generate the review URL if it doesn't exist
+    if (
+      (updateData.status === 'completed' || updateData.status === 'concluded') &&
+      (!currentEvent.reviews?.url)
+    ) {
+      const frontUrl = getFrontUrl();
+      const reviewUrl = `${frontUrl}/wedding/reviews/${currentEvent.eventId}`;
+      updateData.reviews = {
+        ...currentEvent.reviews,
+        ...updateData.reviews,
+        url: reviewUrl,
+      };
+    }
+
+    const event = await Event.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    res.json({ success: true, message: 'Evento actualizado', data: event });
+  } catch (error) {
+    res.status(400).json({ success: false, message: (error as Error).message });
+  }
+});
+
+// ─── POST /api/events/:id/reviews ──────────────────────────────────────────
+router.post('/:id/reviews', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { comments } = req.body;
     const event = await Event.findOneAndUpdate(
       buildQuery(req.params.id),
-      { $set: req.body },
-      { new: true, runValidators: true }
+      { $set: { 'reviews.comments': comments } },
+      { new: true }
     );
     if (!event) {
       res.status(404).json({ success: false, message: 'Evento no encontrado' });
       return;
     }
-    res.json({ success: true, message: 'Evento actualizado', data: event });
+    res.json({ success: true, message: 'Comentario guardado exitosamente', data: event });
   } catch (error) {
-    res.status(400).json({ success: false, message: (error as Error).message });
+    res.status(500).json({ success: false, message: (error as Error).message });
   }
 });
 

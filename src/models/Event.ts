@@ -282,6 +282,10 @@ export interface IEvent extends Document {
   };
   activeComponents: IActiveComponents;
   components: IComponents;
+  reviews?: {
+    url?: string;
+    comments?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -464,6 +468,10 @@ const EventSchema = new Schema<IEvent>({
     rsvp: RSVPSchema,
     timeline: TimelineSchema,
     guestManagement: GuestManagementSchema,
+  },
+  reviews: {
+    url: String,
+    comments: String,
   },
 }, {
   timestamps: true,

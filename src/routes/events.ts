@@ -120,8 +120,32 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 // Helper to get VITE_FRONT_URL dynamically from frontend environment files
 const getFrontUrl = (): string => {
   try {
+    // 1. Check process.env first
+    if (process.env.VITE_FRONT_URL) {
+      return process.env.VITE_FRONT_URL.replace(/\/$/, '');
+    }
+
     const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
-    const envPath = path.resolve(__dirname, '../../../frontend', envFile);
+    
+    // 2. Check path relative to __dirname (handles src/routes and dist/routes)
+    let envPath = path.resolve(__dirname, '../../../frontend', envFile);
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath));
+      if (envConfig.VITE_FRONT_URL) {
+        return envConfig.VITE_FRONT_URL.replace(/\/$/, '');
+      }
+    }
+
+    // 3. Check path relative to process.cwd()
+    envPath = path.resolve(process.cwd(), '../frontend', envFile);
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath));
+      if (envConfig.VITE_FRONT_URL) {
+        return envConfig.VITE_FRONT_URL.replace(/\/$/, '');
+      }
+    }
+
+    envPath = path.resolve(process.cwd(), 'frontend', envFile);
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath));
       if (envConfig.VITE_FRONT_URL) {
@@ -148,13 +172,10 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
 
     const updateData = { ...req.body };
 
-    // If status is changed to completed or concluded, generate the review URL if it doesn't exist
-    if (
-      (updateData.status === 'completed' || updateData.status === 'concluded') &&
-      (!currentEvent.reviews?.url)
-    ) {
-      const frontUrl = getFrontUrl();
-      const reviewUrl = `${frontUrl}/wedding/reviews/${currentEvent.eventId}`;
+    // If status is completed/concluded (or is being set to it), ensure review URL is set/updated
+    const targetStatus = updateData.status || currentEvent.status;
+    if (targetStatus === 'completed' || targetStatus === 'concluded') {
+      const reviewUrl = `wedding/reviews/${currentEvent.eventId}`;
       updateData.reviews = {
         ...currentEvent.reviews,
         ...updateData.reviews,

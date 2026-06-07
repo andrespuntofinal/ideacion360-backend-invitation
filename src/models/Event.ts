@@ -105,6 +105,9 @@ export interface IDressCode {
   boderColor?: string;
   backgroundColorIconMoments?: string;
   borderColorIconMoments?: string;
+  activateColorPalette?: boolean;
+  colorPaletteWomen?: string[];
+  colorPaletteMen?: string[];
 }
 
 export interface IEnvelope {
@@ -343,6 +346,9 @@ const DressCodeSchema = new Schema<IDressCode>({
   title2Color: String, title2Font: String, text2Color: String, text2Font: String,
   backgroundColorFrom: String, backgroundColorVia: String, backgroundColorTo: String,
   boderColor: String, backgroundColorIconMoments: String, borderColorIconMoments: String,
+  activateColorPalette: { type: Boolean, default: false },
+  colorPaletteWomen: [String],
+  colorPaletteMen: [String],
 }, { _id: false });
 
 const EnvelopeSchema = new Schema<IEnvelope>({

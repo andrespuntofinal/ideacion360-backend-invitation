@@ -282,6 +282,7 @@ export interface IEvent extends Document {
     coupleNames?: string;
     weddingDate?: Date;
     weddingTime?: string;
+    cardType?: string;
   };
   activeComponents: IActiveComponents;
   components: IComponents;
@@ -458,6 +459,7 @@ const EventSchema = new Schema<IEvent>({
     coupleNames: String,
     weddingDate: Date,
     weddingTime: String,
+    cardType: { type: String, default: 'elegant-basic-01' },
   },
   activeComponents: { type: ActiveComponentsSchema, default: {} },
   components: {
